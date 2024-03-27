@@ -6,7 +6,7 @@ This repo contains the minimal configuration to deploy istio in multi-cluster(on
 
 - docker
 - kubectl
-- kind
+- kind 0.14.0
 - istioctl
 
 ---
