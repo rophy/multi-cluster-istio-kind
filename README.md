@@ -7,7 +7,11 @@ This repo contains the minimal configuration to deploy istio in multi-cluster(on
 - docker
 - kubectl
 - kind 0.14.0
-- istioctl
+- istioctl 1.16.7
+
+    ```console
+    curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.16.7 TARGET_ARCH=x86_64 sh -
+    ```
 
 ---
 
@@ -24,11 +28,6 @@ export NUM_CLUSTERS=2
 
 Both ingress and egress gateway created by istio need to External IP. MetalLB allocates it for them.
 
-```shell
-cd kind-setup
-./install-metallb.sh
-```
-
 The range of IP addresses that kind cluster controls can be obtained
 with `docker network inspect -f '{{$map := index .IPAM.Config 0}}{{index $map "Subnet"}}' kind`
 
@@ -37,6 +36,15 @@ created [metallb-configmap-1.yaml](./kind-setup/metallb-configmap-1.yaml)
 and [metallb-configmap-2.yaml](./kind-setup/metallb-configmap-2.yaml). This allocates `172.18.255.225-172.18.255.250`
 and `172.18.255.200-172.18.255.224` ip ranges to cluster1 and cluster2 respectively. If you are creating more than two
 cluster, create another metallb-configmap.
+
+Edit metallb-config-N.yaml, change the IP range to fit your docker network CIDR, and then install metallb:
+
+
+```shell
+cd kind-setup
+./install-metallb.sh
+```
+
 
 ### Install CA Certs [2](https://istio.io/latest/docs/tasks/security/cert-management/plugin-ca-cert/)
 
@@ -65,7 +73,7 @@ It does the following for each cluster:
 
 ```shell
 cd istio-setup
-./install-istio.yaml
+./install-istio.sh
 ```
 
 ### Istio Setup using helm
