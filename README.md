@@ -41,8 +41,7 @@ Edit metallb-config-N.yaml, change the IP range to fit your docker network CIDR,
 
 
 ```shell
-cd kind-setup
-./install-metallb.sh
+./kind-setup/install-metallb.sh
 ```
 
 
@@ -54,8 +53,7 @@ common root to generate intermediate certificates for each cluster
 Note: in this script we -label istio namespace as "topology.istio.io/network=network${i}"
 
 ```shell
-cd kind-setup
-./install-cacerts.sh
+./kind-setup/install-cacerts.sh
 ```
 
 ---
@@ -72,28 +70,8 @@ It does the following for each cluster:
 - install remote secret of this cluster in the other cluster to enable k8s api server endpoint discovery
 
 ```shell
-cd istio-setup
-./install-istio.sh
+./istio-setup/install-istio.sh
 ```
-
-### Istio Setup using helm
-
-1. Add istio helm repo and update charts
-
- ```shell
- cd istio-chart
- helm repo add sedflix https://sedflix.github.io/charts/
- helm dependency update
- ```
-
-2. Install helm charts
-
- ```shell
- cd istio-chart
- ./install.sh
- ```
-
----
 
 ## Enable endpoint discovery
 
@@ -101,8 +79,7 @@ Now, we need to configure each istiod to watch other clusters api servers. We cr
 Istio to access the other (n-1) remote kubernetes api servers.
 
 ```shell
-cd istio-setup
-./enable-endpoint-discovery.sh
+./istio-setup/enable-endpoint-discovery.sh
 ```
 
 ---
@@ -118,8 +95,7 @@ It does the following:
 - deploy v1 and v2 of helloworld alternatively in each cluster
 
 ```shell
-cd testing
-./deploy-application.sh
+./testing/deploy-application.sh
 ```
 
 ### Test the magic [4](https://istio.io/latest/docs/setup/install/multicluster/verify/)

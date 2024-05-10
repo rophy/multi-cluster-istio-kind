@@ -5,6 +5,8 @@ set -o xtrace
 set -o nounset
 set -o pipefail
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+pushd "$SCRIPT_DIR"
 
 NUM_CLUSTERS="${NUM_CLUSTERS:-2}"
 
