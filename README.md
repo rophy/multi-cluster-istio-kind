@@ -101,7 +101,7 @@ Now, we need to configure each istiod to watch other clusters api servers. We cr
 Istio to access the other (n-1) remote kubernetes api servers.
 
 ```shell
-cd istio-chart/istio-setup
+cd istio-setup
 ./enable-endpoint-discovery.sh
 ```
 

@@ -14,7 +14,7 @@ for i in $(seq "${NUM_CLUSTERS}"); do
   echo "Starting istio deployment in cluster${i}"
 
   kubectl --context="cluster${i}" get namespace istio-system && \
-    kubectl --context="cluster${i}" label namespace istio-system topology.istio.io/network="network${i}"
+    kubectl --context="cluster${i}" label namespace istio-system topology.istio.io/network="network${i}" --overwrite
 
    sed -e "s/{i}/${i}/" cluster.yaml > "cluster${i}.yaml"
   istioctl install --force --context="cluster${i}" -f "cluster${i}.yaml"
