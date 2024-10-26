@@ -17,20 +17,20 @@ help:
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/##//'
 
 #------------------------------------------------------------------------
-##root-ca:	generate root CA files (key and certifcate) in current directory.
+##root-ca:	generate root CA files (key and certificate) in current directory.
 .PHONY: root-ca
 
 root-ca: root-key.pem root-cert.pem
 
 root-cert.pem: root-cert.csr root-key.pem
 	@echo "generating $@"
-	@openssl x509 -req -days $(ROOTCA_DAYS) -signkey root-key.pem \
+	@openssl x509 -req -sha256 -days $(ROOTCA_DAYS) -signkey root-key.pem \
 		-extensions req_ext -extfile root-ca.conf \
 		-in $< -out $@
 
 root-cert.csr: root-key.pem root-ca.conf
 	@echo "generating $@"
-	@openssl req -new -key $< -config root-ca.conf -out $@
+	@openssl req -sha256 -new -key $< -config root-ca.conf -out $@
 
 root-key.pem:
 	@echo "generating $@"
@@ -51,7 +51,7 @@ root-key.pem:
 
 %/ca-cert.pem: %/cluster-ca.csr root-key.pem root-cert.pem
 	@echo "generating $@"
-	@openssl x509 -req -days $(INTERMEDIATE_DAYS) \
+	@openssl x509 -req -sha256 -days $(INTERMEDIATE_DAYS) \
 		-CA root-cert.pem -CAkey root-key.pem -CAcreateserial\
 		-extensions req_ext -extfile $(dir $<)/intermediate.conf \
 		-in $< -out $@
@@ -59,7 +59,7 @@ root-key.pem:
 %/cluster-ca.csr: L=$(dir $@)
 %/cluster-ca.csr: %/ca-key.pem %/intermediate.conf
 	@echo "generating $@"
-	@openssl req -new -config $(L)/intermediate.conf -key $< -out $@
+	@openssl req -sha256 -new -config $(L)/intermediate.conf -key $< -out $@
 
 %/ca-key.pem:
 	@echo "generating $@"
@@ -70,10 +70,10 @@ root-key.pem:
 ##<namespace>-certs: generate intermediate certificates and sign certificates for a virtual machine connected to the namespace `<namespace> using serviceAccount `$SERVICE_ACCOUNT` using self signed root certs.
 .PHONY: %-certs
 
-%-certs: %/workload-cert-chain.pem root-cert.pem
+%-certs: %/ca-cert.pem %/workload-cert-chain.pem root-cert.pem
 	@echo "done"
 
-%/workload-cert-chain.pem: root-cert.pem %/ca-cert.pem %/workload-cert.pem
+%/workload-cert-chain.pem: %/workload-cert.pem %/ca-cert.pem root-cert.pem
 	@echo "generating $@"
 	@cat $^ > $@
 	@echo "Intermediate and workload certs stored in $(dir $<)"
@@ -82,7 +82,7 @@ root-key.pem:
 
 %/workload-cert.pem: %/workload.csr
 	@echo "generating $@"
-	@openssl x509 -req -days $(WORKLOAD_DAYS) \
+	@openssl x509 -sha256 -req -days $(WORKLOAD_DAYS) \
 		-CA $(dir $<)/ca-cert.pem  -CAkey $(dir $<)/ca-key.pem -CAcreateserial\
 		-extensions req_ext -extfile $(dir $<)/workload.conf \
 		-in $< -out $@
@@ -90,7 +90,7 @@ root-key.pem:
 %/workload.csr: L=$(dir $@)
 %/workload.csr: %/key.pem %/workload.conf
 	@echo "generating $@"
-	@openssl req -new -config $(L)/workload.conf -key $< -out $@
+	@openssl req -sha256 -new -config $(L)/workload.conf -key $< -out $@
 
 %/key.pem:
 	@echo "generating $@"
